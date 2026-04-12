@@ -1,22 +1,22 @@
-# 🧬 BioForge
+# BioForge
 
-## 🚀 The Automated Drug-Discovery Pipeline
+## The Automated Drug-Discovery Pipeline
 
 **BioForge** is an end-to-end computational pipeline that transforms drug design into a rapid, iterative software engineering process. By bridging the gap between genomic identification and physical simulation, BioForge architects and validates novel molecules for specific protein targets using state-of-the-art Generative AI and physics-based docking.
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-- **🎯 Target-Centric Design**: Focuses on the application layer, designing molecules tailored to specific protein pockets.
-- **🤖 AI-Powered Synthesis**: Utilizes LLMs and generative models to architect novel SMILES-based chemical structures.
-- **⚡ Asynchronous Orchestration**: High-performance FastAPI backend capable of managing distributed docking simulations.
-- **🛡️ Scientific Rigor**: Multi-layered validation using RDKit, Lipinski’s Rule of Five, and AutoDock Vina.
-- **📊 Intelligence Layer**: Real-time lead ranking based on binding affinity ($\Delta G$) and synthetic feasibility.
+- **Target-Centric Design**: Focuses on the application layer, designing molecules tailored to specific protein pockets.
+- **AI-Powered Synthesis**: Utilizes LLMs and generative models to architect novel SMILES-based chemical structures.
+- **Asynchronous Orchestration**: High-performance FastAPI backend capable of managing distributed docking simulations.
+- **Scientific Rigor**: Multi-layered validation using RDKit, Lipinski’s Rule of Five, and AutoDock Vina.
+- **Intelligence Layer**: Real-time lead ranking based on binding affinity ($\Delta G$) and synthetic feasibility.
 
 ---
 
-## 🏗️ Project Architecture
+## Project Architecture
 
 ```mermaid
 graph TD
@@ -32,7 +32,7 @@ graph TD
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 | Layer | Technologies |
 | :--- | :--- |
@@ -44,7 +44,7 @@ graph TD
 
 ---
 
-## 🗺️ Implementation Roadmap
+## Implementation Roadmap
 
 1.  **Phase 1-2**: Foundation & Benchmarking (Structural ingestion & wrapper validation).
 2.  **Phase 3-4**: Orchestration & Design (FastAPI async layer & Generative SMILES).
@@ -52,7 +52,7 @@ graph TD
 
 ---
 
-## 🧪 Getting Started
+## Getting Started
 
 > [!NOTE]
 > BioForge is aligned with 2026 industry standards, shifting from virtual screening to deep physics-based validation. Refer to the [Project Outline](outline.md) for detailed implementation notes.
@@ -63,6 +63,6 @@ graph TD
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

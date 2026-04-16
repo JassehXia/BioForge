@@ -20,7 +20,7 @@ class CleanSelect(Select):
         return False
 
     def accept_atom(self, atom):
-        # only accepts the primary location
+        # only accepts the primary location of an atom
 
         alt_loc = atom.get_altloc()
 
@@ -75,7 +75,6 @@ class IngestionManager:
         Identifies all residues within a physical distance of a target ligand.
         :return: List of Residue objects.
         """
-        
 
         # finding the center
         target_atoms = [atom for atom in structure.get_atoms() if atom.get_parent().get_resname() == pivot_residue]

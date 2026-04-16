@@ -12,7 +12,7 @@ class HeuristicFilter:
         self.max_hbd = max_hbd
         self.max_hba = max_hba
 
-    def evaluate(self, mol):
+    def validate_lipinski(self, mol):
         """
         Calculates Lipinski properties and returns a violation count.
         """
@@ -46,14 +46,6 @@ class HeuristicFilter:
             "Pass": violations <= 1
         }
 
-class MoleculeGenerator:
-    """
-    Interface for converting raw generative output (SMILES) into 
-    sanitized molecular objects.
-    """
-    def __init__(self):
-        self.filter = HeuristicFilter()
-
     def sanitize_smiles(self, smiles):
         """
         Converts SMILES to a Mol object and performs valence/aromaticity checks.
@@ -73,15 +65,68 @@ class MoleculeGenerator:
             logging.error(f"Sanitization failed for {smiles}: {e}")
             return None
 
+    def is_sanitized(self, mol):
+        """
+        Checks if the molecule survives RDKit's Chem.SanitizeMol().
+        """
+        # TODO: Implement Sanitization check
+        return mol is not None and Chem.SanitizeMol(mol) == 0
+
+class MoleculeGenerator:
+    """
+    Interface for converting raw generative output (SMILES) into 
+    sanitized molecular objects.
+    """
+    def __init__(self):
+        self.filter = HeuristicFilter()
+
+    def generate_candidate(self, template_smiles):
+        """
+        Generates a SMILES string (initially from a template).
+        """
+        # 1. Generate SMILES
+        # Placeholder for actual generation logic: adding a Methyl group
+        raw_smiles = template_smiles + "C"
+
+        # 2. Sanitize SMILES
+        # Convert and sanitize
+        mol = Chem.MolFromSmiles(raw_smiles)
+        if not self.filter.is_sanitized(mol):
+            print(f"Candidate {raw_smiles} failed sanitization")
+            return None
+
+        # 3. Validate Lipinski
+        metrics = self.filter.validate_lipinski(mol)
+        if not metrics["Pass"]:
+            print(f"Candidate {raw_smiles} failed Lipinski validation")
+            return None
+        
+        # Return the valid molecule
+        return {
+            "smiles": raw_smiles,
+            "mol": mol,
+            "metrics": metrics
+        }
+
+
 # Mentorship: Example Usage
 if __name__ == "__main__":
     generator = MoleculeGenerator()
     
-    # Example: Imatinib (Gleevec) SMILES
+    # Example 1: Imatinib (Gleevec) SMILES - Positive Control
     sti_smiles = "CC1=C(C=C(C=C1)NC(=O)C2=CC=C(C=C2)CN3CCN(CC3)C)NC4=NC=CC(=N4)C5=CN=CC=C5"
     
-    mol = generator.sanitize_smiles(sti_smiles)
-    if mol:
+    print("--- Testing Positive Control (Imatinib) ---")
+    mol = Chem.MolFromSmiles(sti_smiles)
+    if generator.filter.is_sanitized(mol):
         print(f"SMILES sanitized successfully!")
-        properties = generator.filter.evaluate(mol)
+        properties = generator.filter.validate_lipinski(mol)
         print(f"Properties: {properties}")
+
+    # Example 2: Generative Candidate
+    print("\n--- Testing Generative Candidate ---")
+    benzene = "c1ccccc1"
+    candidate = generator.generate_candidate(benzene)
+    if candidate:
+        print(f"Generated valid candidate: {candidate['smiles']}")
+        print(f"Metrics: {candidate['metrics']}")

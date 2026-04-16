@@ -34,7 +34,7 @@ The pipeline is divided into five distinct stages, moving from raw data to valid
 
 ### Stage 4: Asynchronous Physics-Based Docking
 *Validation through physical simulation.*
-- **Simulation Orchestration**: The system wraps **AutoDock Vina** within a **FastAPI** environment, leveraging an asynchronous architecture similar to high-performance pipelines used for multimodal data processing.
+- **Simulation Orchestration**: The system orchestrates **Dockerized AutoDock Vina** workers within a **FastAPI** environment, leveraging an asynchronous architecture similar to high-performance pipelines used for multimodal data processing.
 - **Binding Affinity Calculation**: The simulator calculates the **Gibbs Free Energy** of binding ($\Delta G$). A lower energy score (measured in kcal/mol) indicates a stronger, more stable bond.
 - **Task Management**: Heavy computational loads are offloaded to background workers, ensuring the system can process large pools of candidates concurrently without performance degradation.
 
@@ -55,10 +55,10 @@ The pipeline is divided into five distinct stages, moving from raw data to valid
 ### Backend & Orchestration
 - **FastAPI**: Serves as the high-performance web framework for the API layer, chosen for its native asynchronous support and Pydantic-based data validation.
 - **Aiohttp**: Integrated for handling asynchronous HTTP requests, particularly for fetching remote biological data from the Protein Data Bank (PDB).
-- **Celery / Redis**: Orchestrates the distributed task queue required for offloading long-running molecular docking simulations from the main API thread.
+- **Redis**: Orchestrates the distributed task queue required for offloading long-running molecular docking simulations from the main API thread.
 
 ### Scientific & Cheminformatics Core
-- **AutoDock Vina**: The primary physics-based simulation engine for calculating protein-ligand binding affinities.
+- **AutoDock Vina (Dockerized)**: The primary physics-based simulation engine for calculating protein-ligand binding affinities, containerized to ensure cross-platform reproducibility and dependency management.
 - **RDKit**: An industry-standard cheminformatics library used for molecular sanitization, descriptor calculation, and SMILES-to-3D structure conversion.
 - **Biopython**: Utilized for parsing, manipulating, and cleaning complex PDB and genomic data files.
 
@@ -85,7 +85,7 @@ The pipeline is divided into five distinct stages, moving from raw data to valid
 | :--- | :--- | :--- | :--- |
 | **P1** | **Structural Foundation** | Acquire and refine biological target data. | Biopython, PDB |
 | **P2** | **Simulation Benchmarks** | Validate physics-based simulation core. | AutoDock Vina, Docker |
-| **P3** | **Scalable Orchestration** | High-performance FastAPI backend. | FastAPI, Celery, Redis |
+| **P3** | **Scalable Orchestration** | High-performance FastAPI backend. | FastAPI, Redis |
 | **P4** | **Generative Design** | Integrate AI-driven chemical synthesis. | SMILES, RDKit |
 | **P5** | **Result Intelligence** | Distributed persistence & ranking. | Supabase, Prisma, PostgreSQL, R2 |
 | **P6** | **Clinical Visualization** | 3D visualizer & clinician dashboard. | Next.js, Three.js, R3F |

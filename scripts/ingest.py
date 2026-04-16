@@ -1,4 +1,6 @@
 from Bio.PDB import PDBList, PDBParser, PDBIO, Select
+from Bio.PDB.Polypeptide import is_aa
+import os
 
 class CleanSelect(Select):
     """
@@ -8,9 +10,16 @@ class CleanSelect(Select):
     def accept_residue(self, residue):
         res_name = residue.get_resname() # get the residue name
 
-        if res_name == "HOH": # don't accept if it is H2O (Water)
-            return False
-        return True
+        # 1. Keep the protein (Standard amino acids)
+        if is_aa(residue):
+            return True
+
+        # 2. Keep the specific drug we are interested in (STI = Imatinib)
+        if res_name == "STI":
+            return True
+
+        # 3. Discard everything else (Water, Chlorides, Lipids)
+        return False
 
     def accept_atom(self, atom):
         alt_loc = atom.get_altloc() # get the alternate location of an atom

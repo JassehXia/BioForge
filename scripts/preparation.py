@@ -49,6 +49,7 @@ class MolecularPreparer:
       subprocess.run(command, check=True, capture_output=True, text=True)
       print(f"Success! {output_path} created.")
       return output_path
+
     except subprocess.CalledProcessError as e:
       print(f"Error preparing receptor: {e}")
       return None

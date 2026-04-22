@@ -57,25 +57,18 @@ class MolecularPreparer:
 # Mentorship: Example Usage
 if __name__ == "__main__":
     preparer = MolecularPreparer()
-    test_smiles = "c1ccccc1"
-    mol = Chem.MolFromSmiles(test_smiles)
     
-    # 1. Embed 3D (Capturing the return value!)
+    # 1. This is the Imatinib SMILES
+    imatinib_smiles = "Cc1ccc(cc1Nc2nccc(n2)c3cccnc3)Nc4ccc(cc4C(=O)Nc5ccc(cc5)CN6CCN(CC6)C)"
+    mol = Chem.MolFromSmiles(imatinib_smiles)
+    
+    # 2. Embed 3D
     mol = preparer.embed_3d(mol) 
     
-    # 2. Convert to PDBQT
-    output_file = "test_ligand.pdbqt"
+    # 3. Save it as imatinib.pdbqt (NOT test_ligand.pdbqt)
+    output_file = "data/processed/imatinib.pdbqt"
     if preparer.convert_to_pdbqt(mol, output_file):
         print(f"Success! {output_file} created.")
 
-        # 3. Test Receptor Preparation
-    # Make sure you have the 1OPJ_clean.pdb file from Iteration 1!
-    protein_pdb = "data/processed/1OPJ_clean.pdb"
-    if os.path.exists(protein_pdb):
-        receptor_pdbqt = preparer.prepare_receptor(protein_pdb)
-        if receptor_pdbqt:
-            print(f"Protein preparation successful: {receptor_pdbqt}")
-    else:
-        print(f"Skipping receptor prep: {protein_pdb} not found.")
 
 

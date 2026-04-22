@@ -2,6 +2,7 @@ import numpy as np
 from Bio.PDB import PDBParser
 import subprocess
 import os
+import re
 
 class DockingEngine:
   """
@@ -38,8 +39,14 @@ class DockingEngine:
     """
     Executes the docking simulation by calling the Docker container.
     """
-
-    output_path = ligand_path.replace(".pdbqt", "_out.pdbqt")
+    
+    # 1. Extract just the filename (e.g., 'imatinib.pdbqt')
+    ligand_filename = os.path.basename(ligand_path)
+    
+    # 2. Create the output path in the results folder
+    # Result: 'data/results/imatinib_out.pdbqt'
+    output_filename = ligand_filename.replace(".pdbqt", "_out.pdbqt")
+    output_path = f"data/results/{output_filename}"
 
     # Construct the Docker command
     docker_cmd = [
@@ -70,37 +77,51 @@ class DockingEngine:
     else:
       print("Simulation failed")
       return None
-    
+
+  def parse_score(self, vina_output):
+    """
+    Extracts the best affinity score from the Vina output text
+    """
+
+    # We look for '1' (the mode) followed by the score (e.g., -4.652)
+    # Pattern: find the first number in the 'affinity' column
+    match = re.search(r"^\s+1\s+(-?\d+\.\d+)", vina_output, re.MULTILINE)
+
+    if match:
+      affinity = float(match.group(1))
+      return affinity
+
+    return None
 
 if __name__ == "__main__":
     engine = DockingEngine()
     parser = PDBParser(QUIET=True)
     
-    # 1. Load the protein to identify the pocket coordinates
+    # 1. Load protein for grid calculation
     protein_pdb = "data/processed/1OPJ_clean.pdb"
     structure = parser.get_structure("1OPJ", protein_pdb)
     
-    # 2. Extract residues to define the 'Search Box'
-    # For this test, we'll just use all residues in Chain A
-    # (In a real run, you'd use your specific Active Site list)
-    all_residues = []
-    for model in structure:
-        for chain in model:
-            if chain.id == "A":
-                all_residues.extend(list(chain.get_residues()))
-    
-    print(f"Calculating grid for {len(all_residues)} residues...")
+    # 2. Extract Active Site (Chain A)
+    all_residues = [r for m in structure for c in m if c.id == "A" for r in c]
     center, size = engine.calculate_grid(all_residues)
-    print(f"Grid Center: {center}")
-    print(f"Grid Size: {size}")
 
-    # 3. Run the Docking simulation
-    # We'll use the files we prepared in the last step
+    # 3. Define our Benchmark files
+    # (Note: Make sure you prepared imatinib.pdbqt using preparation.py!)
     protein_pdbqt = "data/processed/1OPJ_clean.pdbqt"
-    ligand_pdbqt = "test_ligand.pdbqt" # The Benzene we made earlier
+    ligand_pdbqt = "data/processed/imatinib.pdbqt" 
     
-    output = engine.run_vina(protein_pdbqt, ligand_pdbqt, center, size)
+    # 4. Run & Parse
+    raw_output = engine.run_vina(protein_pdbqt, ligand_pdbqt, center, size)
     
-    if output:
-        print("\n--- Simulation Output ---")
-        print(output)
+    if raw_output:
+        best_score = engine.parse_score(raw_output)
+        print(f"\n✅ VALIDATION COMPLETE")
+        print(f"Target: BCR-ABL (1OPJ)")
+        print(f"Ligand: Imatinib")
+        print(f"Calculated Affinity: {best_score} kcal/mol")
+        
+        if best_score and best_score < -8.0:
+            print("🚀 PIPELINE VALIDATED: Replicated high-affinity bind!")
+    else:
+        print("Docking simulation did not return a valid output.")
+        
